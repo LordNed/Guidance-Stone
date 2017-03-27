@@ -195,7 +195,7 @@ namespace GuidanceStone
 
     /// <summary>
     /// Immediately following the <see cref="InstanceHeader"/> is <see cref="InstanceHeader.InstanceCount"/> many instances of that actor.
-    /// Each instance has 0x32 bytes of unique data.
+    /// Each instance is padded up to 0x32 bytes.
     /// </summary>
     public class Instance
     {

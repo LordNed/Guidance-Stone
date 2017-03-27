@@ -59,10 +59,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\Vector3Single.xaml.cs">
+      <DependentUpon>Vector3Single.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\ItemToIndexConverter.cs" />
     <Compile Include="Converters\Vector3Converter.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
+    <Page Include="Controls\Vector3Single.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
