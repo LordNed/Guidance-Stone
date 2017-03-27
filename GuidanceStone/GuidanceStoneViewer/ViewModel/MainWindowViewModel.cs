@@ -273,7 +273,7 @@ namespace GuidanceStoneViewer.ViewModel
             sfd.FileName = CurrentFile.FileName;
             sfd.DefaultExt = ".sblwp";
             sfd.Title = "Save BLWP File As...";
-            sfd.Filter = "Compressed BLWP File (.sblwp)|*.sblwp";
+            sfd.Filter = "Compressed BLWP File|*.sblwp|All Files|*.*";
 
             var result = sfd.ShowDialog();
             if (result == true)
@@ -307,7 +307,7 @@ namespace GuidanceStoneViewer.ViewModel
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.DefaultExt = ".sblwp";
             ofd.Title = "Open BLWP File...";
-            ofd.Filter = "Compressed BLWP File (.sblwp)|*.sblwp";
+            ofd.Filter = "Compressed BLWP File|*.sblwp|All Files|*.*";
 
             var result = ofd.ShowDialog();
             if (result == true)
