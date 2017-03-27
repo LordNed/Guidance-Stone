@@ -35,8 +35,10 @@ namespace GuidanceStone
             Trace.Assert(Unknown1 == 0x00000001);
             Trace.Assert(Padding == 0x00000000);
 
+            ObjectInstances = new List<InstanceHeader>();
+
             // There are EntryCount many InstanceHeaders (+ data) following
-            for(int i = 0; i < EntryCount; i++)
+            for (int i = 0; i < EntryCount; i++)
             {
                 var size = reader.ReadInt32();
                 var instanceCount = reader.ReadInt32();
@@ -50,6 +52,7 @@ namespace GuidanceStone
 
                 InstanceHeader instanceHdr = new InstanceHeader();
                 instanceHdr.InstanceName = instanceName;
+                ObjectInstances.Add(instanceHdr);
 
                 // Jump back to where we were in our stream and read instanceCount many instances of data.
                 reader.BaseStream.Position = streamPos;
@@ -59,6 +62,7 @@ namespace GuidanceStone
                     inst.Position = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                     inst.Rotation = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                     inst.UniformScale = reader.ReadSingle();
+                    instanceHdr.Instances.Add(inst);
 
                     Trace.Assert(reader.ReadInt32() == 0); // Padding
                 }
