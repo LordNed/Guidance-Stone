@@ -4,9 +4,50 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GuidanceStoneViewer"
+        xmlns:viewmodel="clr-namespace:GuidanceStoneViewer.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="720" Width="1280">
+
+    <Window.DataContext>
+        <viewmodel:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding Path=NewFileCommand}" Key="N" Modifiers="Ctrl"/>
+        <KeyBinding Command="{Binding Path=OpenFileCommand}" Key="O" Modifiers="Ctrl"/>
+        <KeyBinding Command="{Binding Path=SaveFileCommand}" Key="S" Modifiers="Ctrl"/>
+        <KeyBinding Command="{Binding Path=SaveFileAsCommand}" Key="O" Modifiers="Ctrl+Shift"/>
+    </Window.InputBindings>
+    
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- File Menu Strip -->
+        <Menu IsMainMenu="True" Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="{Binding Path=NewFileCommand}" InputGestureText="Ctrl + N"/>
+                <MenuItem Header="_Open" Command="{Binding Path=OpenFileCommand}" InputGestureText="Ctrl + O"/>
+                <Separator/>
+                <MenuItem Header="_Save" Command="{Binding Path=SaveFileCommand}" InputGestureText="Ctrl + S"/>
+                <MenuItem Header="Save As..." Command="{Binding Path=SaveFileAsCommand}" InputGestureText="Ctrl + Shift + S"/>
+                <Separator/>
+                <MenuItem Header="_Close" Command="{Binding Path=CloseFileCommand}"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Command="{Binding Path=ExitApplicationCommand}"/>
+            </MenuItem>
+
+            <MenuItem Header="_Help">
+                <MenuItem Header="_Report a Bug..." Command="{Binding Path=OpenReportABugCommand}"/>
+                <MenuItem Header="_Wiki..." Command="{Binding Path=OpenWikiCommand}"/>
+                <MenuItem Header="_About" Command="{Binding Path=OpenAboutDialogCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Main Application Grid -->
+        <Grid Grid.Row="1">
+        </Grid>
     </Grid>
 </Window>
