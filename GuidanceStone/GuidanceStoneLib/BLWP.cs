@@ -77,12 +77,17 @@ namespace GuidanceStone
             }
         }
 
-        public void SaveToFile(string filePath)
+        /// <summary>
+        /// Saves the BLWP file to memory.
+        /// </summary>
+        /// <returns>BLWP data</returns>
+        public byte[] SaveToMemory()
         {
-            using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+            byte[] file;
+
+            using (MemoryStream stream = new MemoryStream())
             {
                 EndianBinaryWriter writer = new EndianBinaryWriter(stream, Endian.Big);
-
 
                 writer.Write(System.Text.Encoding.UTF8.GetBytes("PrOD")); // Magic
                 writer.Write(0x01000000); // Version number and padding?
@@ -159,8 +164,12 @@ namespace GuidanceStone
                     writer.Write((int)writer.BaseStream.Length);
 
                     writer.BaseStream.Seek(0, System.IO.SeekOrigin.End); // Finish by returning to the end of the stream
+
+                    file = stream.ToArray();
                 }
             }
+
+            return file;
         }
     }
 

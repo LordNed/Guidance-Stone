@@ -61,7 +61,19 @@ namespace GuidanceStoneViewer.ViewModel
             // Update our cached FilePath where they're saving the file.
             m_fileSavePath = filePath;
 
-            CurrentFile.SaveToFile(m_fileSavePath);
+            byte[] uncompressedFile = CurrentFile.SaveToMemory();
+            GameFormatReader.Common.EndianBinaryWriter compressedFile;
+
+            using (MemoryStream file = new MemoryStream(uncompressedFile))
+            {
+                compressedFile = WArchiveTools.Compression.Yaz0.Encode(file);
+            }
+
+            compressedFile.BaseStream.Position = 0;
+            using (FileStream output = new FileStream(m_fileSavePath, FileMode.Create, FileAccess.Write))
+            {
+                compressedFile.BaseStream.CopyTo(output);
+            }
         }
 
         private bool CloseCurrentFileWithConfirm()
