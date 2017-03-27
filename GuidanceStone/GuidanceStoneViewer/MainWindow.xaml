@@ -123,8 +123,8 @@
                     <Button Grid.Column="2" Content="+" Width="20" Height="20" Margin="4" Command="{Binding Path=AddNewInstanceCommand}"/>
                 </Grid>
 
-                <GroupBox Grid.Row="1" Header="Instance Properties" Margin="4" DataContext="{Binding Path=CurrentInstance}">
-                    <Grid>
+                <GroupBox Grid.Row="1" Header="Instance Properties" Margin="4" IsEnabled="{Binding Path=InstanceIsValid}">
+                    <Grid DataContext="{Binding Path=CurrentInstance}" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>

@@ -26,6 +26,7 @@ namespace GuidanceStoneViewer.ViewModel
         }
 
         public bool FileIsLoaded { get { return CurrentFile != null; } }
+        public bool InstanceIsValid { get { return CurrentInstance != null; } }
 
         public BLWP CurrentFile
         {
@@ -66,6 +67,7 @@ namespace GuidanceStoneViewer.ViewModel
             {
                 m_currentInstance = value;
                 OnPropertyChanged();
+                OnPropertyChanged("InstanceIsValid");
             }
         }
 
