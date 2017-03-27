@@ -1,19 +1,50 @@
 ﻿using GuidanceStone;
 using Microsoft.Win32;
 using System;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using WArchiveTools;
 
 namespace GuidanceStoneViewer.ViewModel
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
-        public BLWP CurrentFile { get { return m_currentFile; } private set { m_currentFile = value; } }
+        private const string kWindowTitle = "Guidance Stone: Static Mesh Instance Editor";
+
+        public string WindowTitle
+        {
+            get
+            {
+                if (FileIsLoaded)
+                    return $"{CurrentFile.FileName} - {kWindowTitle}";
+                else
+                    return kWindowTitle;
+            }
+        }
+
+        public bool FileIsLoaded { get { return CurrentFile != null; } }
+        public BLWP CurrentFile { get { return m_currentFile; } private set { m_currentFile = value; OnPropertyChanged(); OnPropertyChanged("FileIsLoaded"); OnPropertyChanged("WindowTitle"); } }
+        public InstanceHeader CurrentInstanceHeader { get { return m_currentInstanceHeader; } set { m_currentInstanceHeader = value; OnPropertyChanged(); } }
 
         private BLWP m_currentFile;
+        private InstanceHeader m_currentInstanceHeader;
+
         private string m_fileSavePath;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public MainWindowViewModel()
+        {
+            // Check to see if there's any file on the command line argument now that we've initialized, incase they opened via double clicking on a file.
+            string[] cmdArgs = Environment.GetCommandLineArgs();
+            if(cmdArgs.Length > 1)
+            {
+                OpenNewFile(cmdArgs[1]);
+            }
+        }
 
         private void OpenNewFile(string filePath)
         {
@@ -203,5 +234,10 @@ namespace GuidanceStoneViewer.ViewModel
             throw new NotImplementedException();
         }
         #endregion
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

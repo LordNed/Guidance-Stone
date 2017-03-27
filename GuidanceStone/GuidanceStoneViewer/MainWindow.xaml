@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GuidanceStoneViewer"
         xmlns:viewmodel="clr-namespace:GuidanceStoneViewer.ViewModel"
         mc:Ignorable="d"
-        Title="Breath of the Wild: Static Mesh Instance Editor" Height="480" Width="720.333">
+        Title="{Binding Path=WindowTitle}" Height="480" Width="720">
 
     <Window.DataContext>
         <viewmodel:MainWindowViewModel/>
@@ -47,7 +47,7 @@
         </Menu>
 
         <!-- Main Application Grid -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" IsEnabled="{Binding Path=FileIsLoaded}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="5"/>
@@ -63,9 +63,24 @@
 
                 <DockPanel Grid.Row="0" Margin="4">
                     <Label Content="Instance Name:"/>
-                    <TextBox Text="OBJ_INSTANCE_EXAMPLE_NAME" Margin="4" Width="Auto"/>
+                    <TextBox Text="{Binding Path=CurrentInstanceHeader.InstanceName, UpdateSourceTrigger=PropertyChanged}" Margin="4" Width="Auto"/>
                 </DockPanel>
-                <ListBox  Grid.Row="1" Margin="4"/>
+                <ListBox  Grid.Row="1" Margin="4" ItemsSource="{Binding Path=CurrentFile.ObjectInstances}" SelectedItem="{Binding Path=CurrentInstanceHeader}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Name:"/>
+                                    <Label Content="{Binding Path=InstanceName}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="Instance Count:"/>
+                                    <Label Content="{Binding Path=Instances.Count}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="-" Height="20" Width="20" Margin="4"/>
                     <Button Content="+" Height="20" Width="20" Margin="4"/>
@@ -108,7 +123,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                
+
                                 <Label Grid.Column="0" Content="X:"/>
                                 <TextBox Grid.Column="1" Text="512515.1259015" Width="Auto"/>
                                 <Label Grid.Column="2" Content="Y:"/>

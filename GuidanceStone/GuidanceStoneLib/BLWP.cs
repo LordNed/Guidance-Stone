@@ -1,14 +1,20 @@
 ﻿using GameFormatReader.Common;
 using OpenTK;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace GuidanceStone
 {
-    public class BLWP
+    public class BLWP : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public string FileName { get; set; }
+        public ObservableCollection<InstanceHeader> ObjectInstances { get; private set; }
 
         /* 0x00 */ public string Magic; // PrOD
         /* 0x04 */ public int Unknown0; // Always 0x01000000 <- Version byte with 3 bytes padding?
@@ -20,7 +26,6 @@ namespace GuidanceStone
         /* 0x1C */ public int Padding;
 
         public StringTable StringTable;
-        public IList<InstanceHeader> ObjectInstances;
 
         public BLWP(string fileName)
         {
@@ -43,7 +48,7 @@ namespace GuidanceStone
             Trace.Assert(Unknown1 == 0x00000001);
             Trace.Assert(Padding == 0x00000000);
 
-            ObjectInstances = new List<InstanceHeader>();
+            ObjectInstances = new ObservableCollection<InstanceHeader>();
 
             // There are EntryCount many InstanceHeaders (+ data) following
             for (int i = 0; i < EntryCount; i++)
@@ -171,16 +176,21 @@ namespace GuidanceStone
 
             return file;
         }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public class InstanceHeader
     {
-        public string InstanceName;
-        public IList<Instance> Instances;
+        public string InstanceName { get; set; }
+        public ObservableCollection<Instance> Instances { get; private set; }
 
         public InstanceHeader()
         {
-            Instances = new List<Instance>();
+            Instances = new ObservableCollection<Instance>();
         }
     }
 
