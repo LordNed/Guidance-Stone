@@ -228,6 +228,11 @@ namespace GuidanceStone
         private Vector3 m_rotation;
         private float m_uniformScale;
 
+        public Instance()
+        {
+            UniformScale = 1f;
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
