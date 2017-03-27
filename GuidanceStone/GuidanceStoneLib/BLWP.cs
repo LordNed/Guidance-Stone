@@ -7,6 +7,8 @@ namespace GuidanceStone
 {
     public class BLWP
     {
+        public string FileName { get; set; }
+
         /* 0x00 */ public string Magic; // PrOD
         /* 0x04 */ public int Unknown0; // Always 0x01000000 <- Version byte with 3 bytes padding?
         /* 0x08 */ public int Unknown1; // Value of 1 (even in empty sblwps)
@@ -18,6 +20,11 @@ namespace GuidanceStone
 
         public StringTable StringTable;
         public IList<InstanceHeader> ObjectInstances;
+
+        public BLWP(string fileName)
+        {
+            FileName = fileName;
+        }
 
         public void LoadFromStream(EndianBinaryReader reader)
         {
