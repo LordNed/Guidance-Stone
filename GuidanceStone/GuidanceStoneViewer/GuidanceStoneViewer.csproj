@@ -98,6 +98,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\GameFormatReader\GameFormatReader\GameFormatReader.csproj">
+      <Project>{AFCE536D-92FF-4EE5-8536-731D2CD5FBCA}</Project>
+      <Name>GameFormatReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WArchive-Tools\ArchiveToolsLib\ArchiveToolsLib.csproj">
+      <Project>{B715685D-1603-4CE3-8EA1-552B01C2BA4B}</Project>
+      <Name>ArchiveToolsLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GuidanceStoneLib\GuidanceStoneLib.csproj">
       <Project>{C997906E-E21E-479D-BDBC-F54A36470B46}</Project>
       <Name>GuidanceStoneLib</Name>

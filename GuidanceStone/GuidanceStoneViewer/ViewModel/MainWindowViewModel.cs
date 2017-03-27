@@ -1,20 +1,83 @@
 ﻿using GuidanceStone;
+using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
+using WArchiveTools;
 
 namespace GuidanceStoneViewer.ViewModel
 {
     public class MainWindowViewModel
     {
-        public BLWP CurrentFile { get { return m_currentFile; } }
+        public BLWP CurrentFile { get { return m_currentFile; } private set { m_currentFile = value; } }
 
         private BLWP m_currentFile;
+        private string m_fileSavePath;
 
-       
+        private void OpenNewFile(string filePath)
+        {
+            if (!File.Exists(filePath))
+                throw new InvalidOperationException("Attempted to open file from non-existant path!");
+
+            string fileName = Path.GetFileNameWithoutExtension(filePath);
+            CurrentFile = new BLWP(fileName);
+            using (var reader = FileUtilities.LoadFile(filePath))
+            {
+                CurrentFile.LoadFromStream(reader);
+            }
+        }
+
+        private bool UserSaveChangesPrompt()
+        {
+            // If there's no current file, there's no changes to save and prompt them about.
+            if (CurrentFile == null)
+                return true;
+
+            var results = MessageBox.Show("Save changes to the current file?", "Close File Confirmation", MessageBoxButton.YesNoCancel);
+
+            switch(results)
+            {
+                // Save their changes and then tell our caller they wish to continue the action.
+                case MessageBoxResult.Yes:
+                    SaveCurrentFile(m_fileSavePath);
+                    return true;
+                // Skip saving changes and then tell our caller they wish to continue the action.
+                case MessageBoxResult.No:
+                    return true;
+                //  They don't want to perform our caller's action, oops!
+                case MessageBoxResult.Cancel:
+                    return false;
+            }
+
+            return true;
+        }
+
+        private void SaveCurrentFile(string filePath)
+        {
+            if (CurrentFile == null)
+                throw new InvalidOperationException("Attempted to save current file with no file loaded.");
+
+            // Update our cached FilePath where they're saving the file.
+            m_fileSavePath = filePath;
+            throw new NotImplementedException("Implement after Gamma implements file saving...");
+        }
+
+        private bool CloseCurrentFileWithConfirm()
+        {
+            if (CurrentFile == null)
+                throw new InvalidOperationException("Attempted to close current file with no file loaded.");
+
+            bool userWantsAction = UserSaveChangesPrompt();
+
+            // They either saved the file or don't care, go ahead and close the file.
+            if (userWantsAction)
+            {
+                CurrentFile = null;
+            }
+
+            return userWantsAction;
+        }
 
         #region Commands
         // File Menu
@@ -32,43 +95,94 @@ namespace GuidanceStoneViewer.ViewModel
 
         private void OnUserRequestCloseFile()
         {
-            throw new NotImplementedException();
+            CloseCurrentFileWithConfirm();
         }
 
         private void OnUserRequestSaveFileAs()
         {
-            throw new NotImplementedException();
+            if (CurrentFile == null)
+                throw new InvalidOperationException("Attempted to save current file as with no file loaded.");
+
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = CurrentFile.FileName;
+            sfd.DefaultExt = ".sblwp";
+            sfd.Title = "Save BLWP File As...";
+            sfd.Filter = "Compressed BLWP File (.sblwp)|*.sblwp";
+
+            var result = sfd.ShowDialog();
+            if(result == true)
+            {
+                string fileName = sfd.FileName;
+                SaveCurrentFile(fileName);
+            }
         }
 
         private void OnUserRequestSaveFile()
         {
-            throw new NotImplementedException();
+            if (CurrentFile == null)
+                throw new InvalidOperationException("Attempted to save current file as with no file loaded.");
+
+            // If this is a new file, use the Save As dialog flow
+            if (string.IsNullOrEmpty(m_fileSavePath))
+                OnUserRequestSaveFileAs();
+            else
+                SaveCurrentFile(m_fileSavePath);
         }
 
         private void OnUserRequestOpenFile()
         {
-            throw new NotImplementedException();
+            if(CurrentFile != null)
+            {
+                bool wantsAction = CloseCurrentFileWithConfirm();
+                if (!wantsAction)
+                    return;
+            }
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.DefaultExt = ".sblwp";
+            ofd.Title = "Open BLWP File...";
+            ofd.Filter = "Compressed BLWP File (.sblwp)|*.sblwp";
+
+            var result = ofd.ShowDialog();
+            if(result == true)
+            {
+                OpenNewFile(ofd.FileName);
+            }
         }
 
         private void OnUserRequestNewFile()
         {
-            throw new NotImplementedException();
+            if(CurrentFile != null)
+            {
+                bool wantsAction = CloseCurrentFileWithConfirm();
+                if (!wantsAction)
+                    return;
+            }
+
+            CurrentFile = new BLWP(string.Empty);
         }
 
         private void OnUserRequestExitApplication()
         {
-            throw new NotImplementedException();
+            if(CurrentFile != null)
+            {
+                bool wantsAction = CloseCurrentFileWithConfirm();
+                if (!wantsAction)
+                    return;
+            }
+
+            App.Current.Shutdown();
         }
 
 
         private void OnUserRequestReportBug()
         {
-            throw new NotImplementedException();
+            System.Diagnostics.Process.Start("https://github.com/LordNed/Guidance-Stone/issues");
         }
 
         private void OnUserRequestOpenWiki()
         {
-            throw new NotImplementedException();
+            System.Diagnostics.Process.Start("https://github.com/LordNed/Guidance-Stone/wiki");
         }
 
         private void OnUserRequestOpenAboutDialog()
