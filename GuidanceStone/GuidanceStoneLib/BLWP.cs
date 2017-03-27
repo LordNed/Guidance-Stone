@@ -2,6 +2,7 @@
 using OpenTK;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace GuidanceStone
 {
@@ -74,6 +75,101 @@ namespace GuidanceStone
                     Trace.Assert(reader.ReadInt32() == 0); // Padding
                 }
             }
+        }
+
+        /// <summary>
+        /// Saves the BLWP file to memory.
+        /// </summary>
+        /// <returns>BLWP data</returns>
+        public byte[] SaveToMemory()
+        {
+            byte[] file;
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                EndianBinaryWriter writer = new EndianBinaryWriter(stream, Endian.Big);
+
+                writer.Write(System.Text.Encoding.UTF8.GetBytes("PrOD")); // Magic
+                writer.Write(0x01000000); // Version number and padding?
+                writer.Write(1); // Unknown, always 1
+
+                writer.Write(0); // Placeholder for offset to string table data
+                writer.Write(0); // Placeholder for file size
+                writer.Write(ObjectInstances.Count); // Number of instances
+                writer.Write(0); // Placeholder for string table offset
+                writer.Write(0); // Padding, always 0
+
+                // This MemoryStream will hold our string table data as we add it
+                using (System.IO.MemoryStream stringTable = new System.IO.MemoryStream())
+                {
+                    EndianBinaryWriter stringWriter = new EndianBinaryWriter(stringTable, Endian.Big);
+
+                    // Write instance data
+                    foreach (InstanceHeader head in ObjectInstances)
+                    {
+                        writer.Write(head.Instances.Count * 32); // Size of instances in bytes
+                        writer.Write(head.Instances.Count); // Number of instances
+                        writer.Write((int)stringWriter.BaseStream.Position + 8); // Offset to name of the instance in the string table.
+
+                        stringWriter.WriteFixedString(head.InstanceName, head.InstanceName.Length); // Add name to string table
+                        stringWriter.Write((byte)0); // Null terminator for string
+
+                        // Strings are padded to the nearest 4. We apply the padding algorithm:
+                        // (x + (n - 1)) & ~(n - 1)
+                        // Then we subtract the original value (x) to get the size of the padding.
+                        // Here, x is (head.InstanceName.Length + 1) to account for the null, and n is 4. We simplify 4 - 1 to 3.
+                        int alignment = ((((head.InstanceName.Length + 1) + 3) & ~(3)) - (head.InstanceName.Length + 1));
+                        byte[] stringPadding = new byte[alignment];
+                        stringWriter.Write(stringPadding);
+
+                        writer.Write(0); // Padding
+
+                        foreach (Instance inst in head.Instances)
+                        {
+                            // Position
+                            writer.Write(inst.Position.X);
+                            writer.Write(inst.Position.Y);
+                            writer.Write(inst.Position.Z);
+
+                            // Rotation, in degrees
+                            writer.Write(inst.Rotation.X);
+                            writer.Write(inst.Rotation.Y);
+                            writer.Write(inst.Rotation.Z);
+
+                            // Uniform scale
+                            writer.Write(inst.UniformScale);
+
+                            // Padding, always 0
+                            writer.Write(0);
+                        }
+                    }
+
+                    // Write string table data offset
+                    writer.BaseStream.Position = 0x0C;
+                    writer.Write((int)writer.BaseStream.Length - 8);
+
+                    // Write string table offset
+                    writer.BaseStream.Position = 0x18;
+                    writer.Write((int)writer.BaseStream.Length);
+
+                    writer.BaseStream.Seek(0, System.IO.SeekOrigin.End); // Return to end of stream to write string table
+
+                    // Write string table data
+                    writer.Write(ObjectInstances.Count);
+                    writer.Write((int)stringWriter.BaseStream.Length);
+                    writer.Write(stringTable.ToArray());
+
+                    // Write file size
+                    writer.BaseStream.Position = 0x10;
+                    writer.Write((int)writer.BaseStream.Length);
+
+                    writer.BaseStream.Seek(0, System.IO.SeekOrigin.End); // Finish by returning to the end of the stream
+
+                    file = stream.ToArray();
+                }
+            }
+
+            return file;
         }
     }
 
