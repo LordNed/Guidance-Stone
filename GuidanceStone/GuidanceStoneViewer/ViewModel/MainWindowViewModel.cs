@@ -26,11 +26,44 @@ namespace GuidanceStoneViewer.ViewModel
         }
 
         public bool FileIsLoaded { get { return CurrentFile != null; } }
-        public BLWP CurrentFile { get { return m_currentFile; } private set { m_currentFile = value; OnPropertyChanged(); OnPropertyChanged("FileIsLoaded"); OnPropertyChanged("WindowTitle"); } }
-        public InstanceHeader CurrentInstanceHeader { get { return m_currentInstanceHeader; } set { m_currentInstanceHeader = value; OnPropertyChanged(); } }
+
+        public BLWP CurrentFile
+        {
+            get { return m_currentFile; }
+            private set
+            {
+                m_currentFile = value;
+
+                if (CurrentFile != null && CurrentFile.ObjectInstances.Count > 0)
+                    CurrentInstanceHeader = CurrentFile.ObjectInstances[0];
+                else
+                    CurrentInstance = null;
+
+                OnPropertyChanged();
+                OnPropertyChanged("FileIsLoaded");
+                OnPropertyChanged("WindowTitle");
+            }
+        }
+
+        public InstanceHeader CurrentInstanceHeader
+        {
+            get { return m_currentInstanceHeader; }
+            set
+            {
+                m_currentInstanceHeader = value;
+                if (m_currentInstanceHeader != null && CurrentInstanceHeader.Instances.Count > 0)
+                    CurrentInstance = CurrentInstanceHeader.Instances[0];
+                else
+                    CurrentInstance = null;
+
+                OnPropertyChanged();
+            }
+        }
+        public Instance CurrentInstance { get { return m_currentInstance; } set { m_currentInstance = value;  OnPropertyChanged(); } }
 
         private BLWP m_currentFile;
         private InstanceHeader m_currentInstanceHeader;
+        private Instance m_currentInstance;
 
         private string m_fileSavePath;
 
@@ -52,11 +85,14 @@ namespace GuidanceStoneViewer.ViewModel
                 throw new InvalidOperationException("Attempted to open file from non-existant path!");
 
             string fileName = Path.GetFileNameWithoutExtension(filePath);
-            CurrentFile = new BLWP(fileName);
+            var newFile = new BLWP(fileName);
             using (var reader = FileUtilities.LoadFile(filePath))
             {
-                CurrentFile.LoadFromStream(reader);
+                newFile.LoadFromStream(reader);
             }
+
+            // Wait until the BLWP is loaded before triggering the INotifyPropertyChanged.
+            CurrentFile = newFile;
         }
 
         private bool UserSaveChangesPrompt()

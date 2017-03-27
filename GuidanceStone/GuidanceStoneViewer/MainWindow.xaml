@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GuidanceStoneViewer"
         xmlns:viewmodel="clr-namespace:GuidanceStoneViewer.ViewModel"
+        xmlns:converters="clr-namespace:GuidanceStoneViewer.Converters"
+        xmlns:gs="clr-namespace:GuidanceStone;assembly=GuidanceStoneLib"
         mc:Ignorable="d"
         Title="{Binding Path=WindowTitle}" Height="480" Width="720">
 
@@ -19,6 +21,9 @@
         <KeyBinding Command="{Binding Path=SaveFileAsCommand}" Key="O" Modifiers="Ctrl+Shift"/>
     </Window.InputBindings>
 
+    <Window.Resources>
+        <converters:Vector3Converter x:Key="Vector3Converter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -99,12 +104,28 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ComboBox Grid.Column="0" Margin="4"/>
+                    <ComboBox Grid.Column="0" Name="InstanceComboBox" Margin="4" ItemsSource="{Binding Path=CurrentInstanceHeader.Instances}" SelectedItem="{Binding Path=CurrentInstance}">
+                        <ComboBox.Resources>
+                            <converters:ItemToIndexConverter x:Key="ItemToIndexConverter"/>
+                        </ComboBox.Resources>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type gs:Instance}">
+                                <Label>
+                                    <Label.Content>
+                                        <MultiBinding Converter="{StaticResource ItemToIndexConverter}">
+                                            <Binding Path="Items" ElementName="InstanceComboBox"/>
+                                            <Binding/>
+                                        </MultiBinding>
+                                    </Label.Content>
+                                </Label>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                     <Button Grid.Column="1" Content="-" Width="20" Height="20" Margin="4"/>
                     <Button Grid.Column="2" Content="+" Width="20" Height="20" Margin="4"/>
                 </Grid>
 
-                <GroupBox Grid.Row="1" Header="Instance Properties" Margin="4">
+                <GroupBox Grid.Row="1" Header="Instance Properties" Margin="4" DataContext="{Binding Path=CurrentInstance}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -125,11 +146,11 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Grid.Column="0" Content="X:"/>
-                                <TextBox Grid.Column="1" Text="512515.1259015" Width="Auto"/>
+                                <TextBox Grid.Column="1" Text="{Binding Path=Position[0]}" Width="Auto"/>
                                 <Label Grid.Column="2" Content="Y:"/>
-                                <TextBox Grid.Column="3" Text="512515.1259015" Width="Auto"/>
+                                <TextBox Grid.Column="3" Text="{Binding Path=Position[1]}" Width="Auto"/>
                                 <Label Grid.Column="4" Content="Z:"/>
-                                <TextBox Grid.Column="5" Text="512515.1259015" Width="Auto"/>
+                                <TextBox Grid.Column="5" Text="{Binding Path=Position[2]}" Width="Auto"/>
                             </Grid>
                         </StackPanel>
 
@@ -146,17 +167,17 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Label Grid.Column="0" Content="X:"/>
-                                <TextBox Grid.Column="1" Text="512515.1259015" Width="Auto"/>
+                                <TextBox Grid.Column="1" Text="{Binding Path=Rotation[0]}" Width="Auto"/>
                                 <Label Grid.Column="2" Content="Y:"/>
-                                <TextBox Grid.Column="3" Text="512515.1259015" Width="Auto"/>
+                                <TextBox Grid.Column="3" Text="{Binding Path=Rotation[1]}" Width="Auto"/>
                                 <Label Grid.Column="4" Content="Z:"/>
-                                <TextBox Grid.Column="5" Text="512515.1259015" Width="Auto"/>
+                                <TextBox Grid.Column="5" Text="{Binding Path=Rotation[2]}" Width="Auto"/>
                             </Grid>
                         </StackPanel>
 
                         <StackPanel Grid.Row="2" Orientation="Vertical" Margin="4">
                             <Label Content="Uniform Scale"/>
-                            <TextBox Text="512515.1259015"/>
+                            <TextBox Text="{Binding Path=UniformScale}"/>
                         </StackPanel>
                     </Grid>
                 </GroupBox>

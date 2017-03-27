@@ -30,6 +30,7 @@ namespace GuidanceStone
         public BLWP(string fileName)
         {
             FileName = fileName;
+            ObjectInstances = new ObservableCollection<InstanceHeader>();
         }
 
         public void LoadFromStream(EndianBinaryReader reader)
@@ -47,8 +48,6 @@ namespace GuidanceStone
             Trace.Assert(Unknown0 == 0x01000000);
             Trace.Assert(Unknown1 == 0x00000001);
             Trace.Assert(Padding == 0x00000000);
-
-            ObjectInstances = new ObservableCollection<InstanceHeader>();
 
             // There are EntryCount many InstanceHeaders (+ data) following
             for (int i = 0; i < EntryCount; i++)
@@ -200,9 +199,9 @@ namespace GuidanceStone
     /// </summary>
     public class Instance
     {
-        public Vector3 Position;
-        public Vector3 Rotation; // In Degrees.
-        public float UniformScale;
+        public Vector3 Position { get; set; }
+        public Vector3 Rotation { get; set; } // In Degrees.
+        public float UniformScale { get; set; }
     }
 
     /// <summary>
