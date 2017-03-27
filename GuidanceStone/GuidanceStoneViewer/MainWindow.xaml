@@ -19,7 +19,7 @@
         <KeyBinding Command="{Binding Path=NewFileCommand}" Key="N" Modifiers="Ctrl"/>
         <KeyBinding Command="{Binding Path=OpenFileCommand}" Key="O" Modifiers="Ctrl"/>
         <KeyBinding Command="{Binding Path=SaveFileCommand}" Key="S" Modifiers="Ctrl"/>
-        <KeyBinding Command="{Binding Path=SaveFileAsCommand}" Key="O" Modifiers="Ctrl+Shift"/>
+        <KeyBinding Command="{Binding Path=SaveFileAsCommand}" Key="S" Modifiers="Ctrl+Shift"/>
     </Window.InputBindings>
 
     <Grid>
