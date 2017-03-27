@@ -60,7 +60,8 @@ namespace GuidanceStoneViewer.ViewModel
 
             // Update our cached FilePath where they're saving the file.
             m_fileSavePath = filePath;
-            throw new NotImplementedException("Implement after Gamma implements file saving...");
+
+            CurrentFile.SaveToFile(m_fileSavePath);
         }
 
         private bool CloseCurrentFileWithConfirm()
