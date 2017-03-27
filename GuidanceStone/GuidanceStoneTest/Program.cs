@@ -18,7 +18,7 @@ namespace GuidanceStoneTest
                     Console.WriteLine($"Opening file {Path.GetFileName(file)}...");
                     using (var fileStream = FileUtilities.LoadFile(file))
                     {
-                        BLWP blwpFile = new BLWP();
+                        BLWP blwpFile = new BLWP(Path.GetFileNameWithoutExtension(file));
                         blwpFile.LoadFromStream(fileStream);
 
                         foreach(var instanceHeader in blwpFile.ObjectInstances)
