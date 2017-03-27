@@ -68,7 +68,7 @@ namespace GuidanceStone
 
                 // Jump back to where we were in our stream and read instanceCount many instances of data.
                 reader.BaseStream.Position = streamPos;
-                for(int j = 0; j < instanceCount; j++)
+                for (int j = 0; j < instanceCount; j++)
                 {
                     Instance inst = new Instance();
                     inst.Position = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
@@ -182,14 +182,33 @@ namespace GuidanceStone
         }
     }
 
-    public class InstanceHeader
+    public class InstanceHeader : INotifyPropertyChanged
     {
-        public string InstanceName { get; set; }
-        public ObservableCollection<Instance> Instances { get; private set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string InstanceName
+        {
+            get { return m_instanceName; }
+            set { m_instanceName = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<Instance> Instances
+        {
+            get { return m_instances; }
+            set { m_instances = value; OnPropertyChanged(); }
+        }
+
+        private string m_instanceName;
+        private ObservableCollection<Instance> m_instances;
 
         public InstanceHeader()
         {
             Instances = new ObservableCollection<Instance>();
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
@@ -197,11 +216,22 @@ namespace GuidanceStone
     /// Immediately following the <see cref="InstanceHeader"/> is <see cref="InstanceHeader.InstanceCount"/> many instances of that actor.
     /// Each instance is padded up to 0x32 bytes.
     /// </summary>
-    public class Instance
+    public class Instance : INotifyPropertyChanged
     {
-        public Vector3 Position { get; set; }
-        public Vector3 Rotation { get; set; } // In Degrees.
-        public float UniformScale { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public Vector3 Position { get { return m_position; } set { m_position = value; OnPropertyChanged(); } }
+        public Vector3 Rotation { get { return m_rotation; } set { m_rotation = value; OnPropertyChanged(); } } // In Degrees.
+        public float UniformScale { get { return m_uniformScale; } set { m_uniformScale = value; OnPropertyChanged(); } }
+
+        private Vector3 m_position;
+        private Vector3 m_rotation;
+        private float m_uniformScale;
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     /// <summary>

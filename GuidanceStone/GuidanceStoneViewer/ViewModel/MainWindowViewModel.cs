@@ -59,7 +59,15 @@ namespace GuidanceStoneViewer.ViewModel
                 OnPropertyChanged();
             }
         }
-        public Instance CurrentInstance { get { return m_currentInstance; } set { m_currentInstance = value;  OnPropertyChanged(); } }
+        public Instance CurrentInstance
+        {
+            get { return m_currentInstance; }
+            set
+            {
+                m_currentInstance = value;
+                OnPropertyChanged();
+            }
+        }
 
         private BLWP m_currentFile;
         private InstanceHeader m_currentInstanceHeader;
@@ -73,7 +81,7 @@ namespace GuidanceStoneViewer.ViewModel
         {
             // Check to see if there's any file on the command line argument now that we've initialized, incase they opened via double clicking on a file.
             string[] cmdArgs = Environment.GetCommandLineArgs();
-            if(cmdArgs.Length > 1)
+            if (cmdArgs.Length > 1)
             {
                 OpenNewFile(cmdArgs[1]);
             }
@@ -103,7 +111,7 @@ namespace GuidanceStoneViewer.ViewModel
 
             var results = MessageBox.Show("Save changes to the current file?", "Close File Confirmation", MessageBoxButton.YesNoCancel);
 
-            switch(results)
+            switch (results)
             {
                 // Save their changes and then tell our caller they wish to continue the action.
                 case MessageBoxResult.Yes:
@@ -180,11 +188,53 @@ namespace GuidanceStoneViewer.ViewModel
 
         private void OnUserRequestAddNewInstanceHeaderCommand()
         {
+            if (CurrentFile == null)
+                throw new InvalidOperationException("Tried to create new instance but no file loaded!");
+
             // Initialize a new InstanceHeader
             CurrentFile.ObjectInstances.Add(new InstanceHeader());
 
             // And then assign it as our selected one.
             CurrentInstanceHeader = CurrentFile.ObjectInstances[CurrentFile.ObjectInstances.Count - 1];
+        }
+
+        private void OnUserRequestDeleteCurrentInstance()
+        {
+            if (CurrentInstanceHeader == null)
+                throw new InvalidOperationException("Tried to delete current instance header, but there is none!");
+
+            if (CurrentInstance == null)
+                throw new InvalidOperationException("Tried to delete current instance, but there is none!");
+
+            int oldIndex = CurrentInstanceHeader.Instances.IndexOf(CurrentInstance);
+            CurrentInstanceHeader.Instances.Remove(CurrentInstance);
+
+            // Combobox bug workaround. 
+            // ItemsSource doesn't update the labels on existing entries when ItemSource is modified.
+            // Meaning it shows the old index of the instance which is now wrong! Doing this fixes that.
+            var oldCurInstanceHeader = CurrentInstanceHeader;
+            CurrentInstanceHeader = null;
+            CurrentInstanceHeader = oldCurInstanceHeader;
+
+            // Set the previous one as selected (if any are remaining)
+            oldIndex--;
+            if (oldIndex < 0)
+                oldIndex = 0;
+
+            if (oldIndex >= 0 && CurrentInstanceHeader.Instances.Count > 0)
+                CurrentInstance = CurrentInstanceHeader.Instances[oldIndex];
+        }
+
+        private void OnUserRequestAddNewInstance()
+        {
+            if (CurrentInstanceHeader == null)
+                throw new InvalidOperationException("Tried to create new instance but no current Instance Header!");
+
+            // Initialize a new Instance
+            CurrentInstanceHeader.Instances.Add(new Instance());
+
+            // And then assign it as our selected one.
+            CurrentInstance = CurrentInstanceHeader.Instances[CurrentInstanceHeader.Instances.Count - 1];
         }
         #region Commands
         // File Menu
@@ -202,8 +252,10 @@ namespace GuidanceStoneViewer.ViewModel
 
         // Buttons
         public ICommand DeleteCurrentInstanceHeaderCommand { get { return new RelayCommand(x => OnUserRequestDeleteCurrentInstanceHeader(), x => CurrentInstanceHeader != null); } }
-        public ICommand AddNewInstanceHeaderCommand { get { return new RelayCommand(x => OnUserRequestAddNewInstanceHeaderCommand(), x => CurrentInstanceHeader != null); } }
+        public ICommand AddNewInstanceHeaderCommand { get { return new RelayCommand(x => OnUserRequestAddNewInstanceHeaderCommand(), x=> CurrentFile != null); } }
 
+        public ICommand DeleteCurrentInstanceCommand { get { return new RelayCommand(x => OnUserRequestDeleteCurrentInstance(), x => CurrentInstance != null); } }
+        public ICommand AddNewInstanceCommand { get { return new RelayCommand(x => OnUserRequestAddNewInstance(), x => CurrentInstanceHeader != null); } }
 
         private void OnUserRequestCloseFile()
         {
@@ -222,7 +274,7 @@ namespace GuidanceStoneViewer.ViewModel
             sfd.Filter = "Compressed BLWP File (.sblwp)|*.sblwp";
 
             var result = sfd.ShowDialog();
-            if(result == true)
+            if (result == true)
             {
                 string fileName = sfd.FileName;
                 SaveCurrentFile(fileName);
@@ -243,7 +295,7 @@ namespace GuidanceStoneViewer.ViewModel
 
         private void OnUserRequestOpenFile()
         {
-            if(CurrentFile != null)
+            if (CurrentFile != null)
             {
                 bool wantsAction = CloseCurrentFileWithConfirm();
                 if (!wantsAction)
@@ -256,7 +308,7 @@ namespace GuidanceStoneViewer.ViewModel
             ofd.Filter = "Compressed BLWP File (.sblwp)|*.sblwp";
 
             var result = ofd.ShowDialog();
-            if(result == true)
+            if (result == true)
             {
                 OpenNewFile(ofd.FileName);
             }
@@ -264,7 +316,7 @@ namespace GuidanceStoneViewer.ViewModel
 
         private void OnUserRequestNewFile()
         {
-            if(CurrentFile != null)
+            if (CurrentFile != null)
             {
                 bool wantsAction = CloseCurrentFileWithConfirm();
                 if (!wantsAction)
@@ -276,7 +328,7 @@ namespace GuidanceStoneViewer.ViewModel
 
         private void OnUserRequestExitApplication()
         {
-            if(CurrentFile != null)
+            if (CurrentFile != null)
             {
                 bool wantsAction = CloseCurrentFileWithConfirm();
                 if (!wantsAction)

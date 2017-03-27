@@ -102,7 +102,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ComboBox Grid.Column="0" Name="InstanceComboBox" Margin="4" ItemsSource="{Binding Path=CurrentInstanceHeader.Instances}" SelectedItem="{Binding Path=CurrentInstance}">
+                    <ComboBox Grid.Column="0" Name="InstanceComboBox" Margin="4" ItemsSource="{Binding Path=CurrentInstanceHeader.Instances}" IsSynchronizedWithCurrentItem="True" SelectedItem="{Binding Path=CurrentInstance}">
                         <ComboBox.Resources>
                             <converters:ItemToIndexConverter x:Key="ItemToIndexConverter"/>
                         </ComboBox.Resources>
@@ -119,8 +119,8 @@
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
                     </ComboBox>
-                    <Button Grid.Column="1" Content="-" Width="20" Height="20" Margin="4"/>
-                    <Button Grid.Column="2" Content="+" Width="20" Height="20" Margin="4"/>
+                    <Button Grid.Column="1" Content="-" Width="20" Height="20" Margin="4" Command="{Binding Path=DeleteCurrentInstanceCommand}"/>
+                    <Button Grid.Column="2" Content="+" Width="20" Height="20" Margin="4" Command="{Binding Path=AddNewInstanceCommand}"/>
                 </Grid>
 
                 <GroupBox Grid.Row="1" Header="Instance Properties" Margin="4" DataContext="{Binding Path=CurrentInstance}">
