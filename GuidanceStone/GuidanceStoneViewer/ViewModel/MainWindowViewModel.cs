@@ -159,6 +159,33 @@ namespace GuidanceStoneViewer.ViewModel
             return userWantsAction;
         }
 
+        private void OnUserRequestDeleteCurrentInstanceHeader()
+        {
+            if (CurrentFile == null)
+                throw new InvalidOperationException("Tried to delete current instance header but no file loaded!");
+            if (CurrentInstanceHeader == null)
+                throw new InvalidOperationException("Tried to delete current instance header, but there is none!");
+
+            int oldIndex = CurrentFile.ObjectInstances.IndexOf(CurrentInstanceHeader);
+            CurrentFile.ObjectInstances.Remove(CurrentInstanceHeader);
+
+            // Set the previous one as selected (if any are remaining)
+            oldIndex--;
+            if (oldIndex < 0)
+                oldIndex = 0;
+
+            if (oldIndex >= 0 && CurrentFile.ObjectInstances.Count > 0)
+                CurrentInstanceHeader = CurrentFile.ObjectInstances[oldIndex];
+        }
+
+        private void OnUserRequestAddNewInstanceHeaderCommand()
+        {
+            // Initialize a new InstanceHeader
+            CurrentFile.ObjectInstances.Add(new InstanceHeader());
+
+            // And then assign it as our selected one.
+            CurrentInstanceHeader = CurrentFile.ObjectInstances[CurrentFile.ObjectInstances.Count - 1];
+        }
         #region Commands
         // File Menu
         public ICommand NewFileCommand { get { return new RelayCommand(x => OnUserRequestNewFile()); } }
@@ -172,6 +199,11 @@ namespace GuidanceStoneViewer.ViewModel
         public ICommand OpenReportABugCommand { get { return new RelayCommand(x => OnUserRequestReportBug()); } }
         public ICommand OpenWikiCommand { get { return new RelayCommand(x => OnUserRequestOpenWiki()); } }
         public ICommand OpenAboutDialogCommand { get { return new RelayCommand(x => OnUserRequestOpenAboutDialog()); } }
+
+        // Buttons
+        public ICommand DeleteCurrentInstanceHeaderCommand { get { return new RelayCommand(x => OnUserRequestDeleteCurrentInstanceHeader(), x => CurrentInstanceHeader != null); } }
+        public ICommand AddNewInstanceHeaderCommand { get { return new RelayCommand(x => OnUserRequestAddNewInstanceHeaderCommand(), x => CurrentInstanceHeader != null); } }
+
 
         private void OnUserRequestCloseFile()
         {

@@ -63,7 +63,6 @@
       <DependentUpon>Vector3Single.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\ItemToIndexConverter.cs" />
-    <Compile Include="Converters\Vector3Converter.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Page Include="Controls\Vector3Single.xaml">

@@ -22,9 +22,6 @@
         <KeyBinding Command="{Binding Path=SaveFileAsCommand}" Key="O" Modifiers="Ctrl+Shift"/>
     </Window.InputBindings>
 
-    <Window.Resources>
-        <converters:Vector3Converter x:Key="Vector3Converter"/>
-    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -88,8 +85,8 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="-" Height="20" Width="20" Margin="4"/>
-                    <Button Content="+" Height="20" Width="20" Margin="4"/>
+                    <Button Content="-" Height="20" Width="20" Margin="4" Command="{Binding Path=DeleteCurrentInstanceHeaderCommand}"/>
+                    <Button Content="+" Height="20" Width="20" Margin="4" Command="{Binding Path=AddNewInstanceHeaderCommand}"/>
                 </StackPanel>
             </Grid>
             <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch"/>
