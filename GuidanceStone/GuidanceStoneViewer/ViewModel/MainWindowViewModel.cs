@@ -94,6 +94,7 @@ namespace GuidanceStoneViewer.ViewModel
             if (!File.Exists(filePath))
                 throw new InvalidOperationException("Attempted to open file from non-existant path!");
 
+            m_fileSavePath = filePath;
             string fileName = Path.GetFileNameWithoutExtension(filePath);
             var newFile = new BLWP(fileName);
             using (var reader = FileUtilities.LoadFile(filePath))
